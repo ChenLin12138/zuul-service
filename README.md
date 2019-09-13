@@ -15,3 +15,15 @@ http://maven.apache.org/download.cgi
 5. Import project as Existing maven projects.
 6. Use mvn clean install to install this project.
 ## Demo
+url调用
+```
+localhost:5555/actuator/routes
+```
+调用结果
+```
+{
+    "/organization/**": "organizationservice",
+    "/organizationservice/**": "organizationservice",
+    "/licenseingservice/**": "licenseingservice"
+}
+```
