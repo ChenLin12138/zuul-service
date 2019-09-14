@@ -8,7 +8,7 @@
 		<version>2.1.4.RELEASE</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>com.lin</groupId>
+	<groupId>com.chenlin</groupId>
 	<artifactId>zuul-service</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>zuul-service</name>

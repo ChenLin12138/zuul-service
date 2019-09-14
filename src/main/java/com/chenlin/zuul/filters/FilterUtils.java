@@ -1,4 +1,4 @@
-package com.lin.zuul.filters;
+package com.chenlin.zuul.filters;
 
 import org.springframework.stereotype.Component;
 

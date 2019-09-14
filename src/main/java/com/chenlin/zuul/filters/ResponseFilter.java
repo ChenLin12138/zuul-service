@@ -1,4 +1,4 @@
-package com.lin.zuul.filters;
+package com.chenlin.zuul.filters;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

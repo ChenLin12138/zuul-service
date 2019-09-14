@@ -1,4 +1,4 @@
-package com.lin.zuul;
+package com.chenlin.zuul;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

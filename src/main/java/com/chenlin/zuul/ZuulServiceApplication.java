@@ -1,4 +1,4 @@
-package com.lin.zuul;
+package com.chenlin.zuul;
 
 import java.util.Collections;
 import java.util.List;
@@ -12,12 +12,12 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.web.client.RestTemplate;
 
-import com.lin.zuul.utils.UserContextInterceptor;
+import com.chenlin.zuul.utils.UserContextInterceptor;
 
 @SpringBootApplication
 //使服务称为一个Zuul服务器
 @EnableZuulProxy
-@ServletComponentScan(basePackages = "com.lin.zuul.*")
+@ServletComponentScan(basePackages = "com.chenlin.zuul.*")
 public class ZuulServiceApplication {
 
 	@LoadBalanced
