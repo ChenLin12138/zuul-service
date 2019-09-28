@@ -51,6 +51,11 @@ public class SpecialRoutesFilter extends ZuulFilter {
 	private static final int FILTER_ORDER = 1;
 	private static final boolean SHOULD_FILTER = true;
 
+	// helper变量是类ProxyRequestHelper类型的一个实例变量，这是Spring Cloud提供的类
+	// 带有用于代理服务请求的辅助方法
+	@Autowired
+	private ProxyRequestHelper helper;
+	
 	@Autowired
 	FilterUtils filterUtils;
 
@@ -75,15 +80,11 @@ public class SpecialRoutesFilter extends ZuulFilter {
 		return SHOULD_FILTER;
 	}
 
-	//helper变量是类ProxyRequestHelper类型的一个实例变量，这是Spring Cloud提供的类
-	//带有用于代理服务请求的辅助方法
-	private ProxyRequestHelper helper = new ProxyRequestHelper();
-
 	private AbTestingRoute getAbRoutingInfo(String serviceName) {
 		ResponseEntity<AbTestingRoute> restExchange = null;
 		try {
 			// 调用specialRouteService的端点
-			restExchange = restTemplate.exchange("http://specialroutesservice/v1/route/abtesting/{serviceId}",
+			restExchange = restTemplate.exchange("http://specialrouteservice/v1/route/abtesting/{serviceId}",
 					HttpMethod.GET, null, AbTestingRoute.class, serviceName);
 		} // 如果路由服务没有找到记录，则返回404
 		catch (HttpClientErrorException ex) {
@@ -148,9 +149,11 @@ public class SpecialRoutesFilter extends ZuulFilter {
 		}
 		return requestEntity;
 	}
-	
-	private void setResponse(HttpResponse response) throws IOException{
-		this.helper.setResponse(response.getStatusLine().getStatusCode(), response.getEntity() == null ? null: response.getEntity().getContent(), revertHeaders(response.getAllHeaders()));
+
+	private void setResponse(HttpResponse response) throws IOException {
+		this.helper.setResponse(response.getStatusLine().getStatusCode(),
+				response.getEntity() == null ? null : response.getEntity().getContent(),
+				revertHeaders(response.getAllHeaders()));
 	}
 
 	private HttpResponse forward(HttpClient httpClient, String verb, String uri, HttpServletRequest request,
@@ -180,24 +183,24 @@ public class SpecialRoutesFilter extends ZuulFilter {
 			httpPatch.setEntity(entity);
 			break;
 		default:
-			httpRequest = new BasicHttpRequest(verb,uri);
+			httpRequest = new BasicHttpRequest(verb, uri);
 		}
 		try {
 			httpRequest.setHeaders(convertHeaders(headers));
 			HttpResponse zuulResponse = forwardRequest(httpClient, httpHost, httpRequest);
 			return zuulResponse;
-		}finally {
-			
+		} finally {
+
 		}
 	}
-	
+
 	private boolean useSpecialRoute(AbTestingRoute abTestRoute) {
 		Random random = new Random();
-		//检查路由是否为活跃状态
+		// 检查路由是否为活跃状态
 		if (abTestRoute.getActive().equals("N"))
 			return false;
 
-		//确定是否应该使用替代服务路由
+		// 确定是否应该使用替代服务路由
 		int value = random.nextInt((10 - 1) + 1) + 1;
 
 		if (abTestRoute.getWeight() < value)
@@ -210,7 +213,7 @@ public class SpecialRoutesFilter extends ZuulFilter {
 	public Object run() throws ZuulException {
 		RequestContext ctx = RequestContext.getCurrentContext();
 
-		//执行对SpecialRoutes服务的调用，以确定该服务id是否有路由记录
+		// 执行对SpecialRoutes服务的调用，以确定该服务id是否有路由记录
 		AbTestingRoute abTestRoute = getAbRoutingInfo(filterUtils.getServiceId());
 
 		// userSpecialRoute将接受路径的权重，生成一个随机数，并确定是否将请求转发到替代服务
@@ -228,12 +231,12 @@ public class SpecialRoutesFilter extends ZuulFilter {
 	private void forwardToSpecialRoute(String route) {
 		RequestContext context = RequestContext.getCurrentContext();
 		HttpServletRequest request = context.getRequest();
-		//创建将发送到服务的所有http请求首部的副本
+		// 创建将发送到服务的所有http请求首部的副本
 		MultiValueMap<String, String> headers = this.helper.buildZuulRequestHeaders(request);
-		//创建所有http请求参数的副本
+		// 创建所有http请求参数的副本
 		MultiValueMap<String, String> params = this.helper.buildZuulRequestQueryParams(request);
 		String verb = getVerb(request);
-		//创建将被转发到替代服务的http主体的副本
+		// 创建将被转发到替代服务的http主体的副本
 		InputStream requestEntity = getRequestBody(request);
 
 		if (request.getContentLength() < 0) {
@@ -246,9 +249,9 @@ public class SpecialRoutesFilter extends ZuulFilter {
 
 		try {
 			httpClient = HttpClients.createDefault();
-			//使用forward()辅助方法调用替代服务
+			// 使用forward()辅助方法调用替代服务
 			response = forward(httpClient, verb, route, request, headers, params, requestEntity);
-			//通过setResponse()辅助方法将服务调用的结果保存到zuul服务器
+			// 通过setResponse()辅助方法将服务调用的结果保存到zuul服务器
 			setResponse(response);
 		} catch (Exception ex) {
 			ex.printStackTrace();
